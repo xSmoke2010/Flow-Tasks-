@@ -1,0 +1,242 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flow Tasks</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<section id="welcome" class="welcome">
+  <div class="intro">
+    <div class="brand-logo">
+        <img src="./image/image copy 4.png" alt="Flow Task  logo">
+    </div>
+    <span class="tag">YOUR DAY. YOUR FLOW.</span>
+    <h1>Make time for<br><span>what matters.</span></h1>
+    <p>Flow Tasks helps you organize your day, manage priorities, and keep track of every task without feeling overwhelmed.</p>
+
+    <div class="features">
+      <div><b>✓</b><span><strong>Plan your day</strong><small>Keep every task organized in one place.</small></span></div>
+      <div><b>◷</b><span><strong>Never miss a task</strong><small>Set reminders for important activities.</small></span></div>
+      <div><b>↗</b><span><strong>Track your progress</strong><small>See how much you've accomplished.</small></span></div>
+    </div>
+
+
+<section class="info-section">
+  <h2>How Flow Tasks Works</h2>
+  <p>Organize your day, complete tasks, and keep track of your progress.</p>
+
+  <div class="info-grid">
+    <div class="info-card">
+      <h3>✓ Manage Tasks</h3>
+      <p>Create tasks, describe what you need to do, and choose a priority.</p>
+    </div>
+
+    <div class="info-card">
+      <h3>◷ Reminders</h3>
+      <p>Set a date and time for a reminder. The website checks reminders while it is running.</p>
+    </div>
+
+    <div class="info-card">
+      <h3>↗ Track Progress</h3>
+      <p>View your pending tasks, completed tasks, and daily progress.</p>
+    </div>
+
+    <div class="info-card">
+      <h3>♙ Admin Dashboard</h3>
+      <p>The admin can review registered accounts, roles, token balances, and submitted tasks.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pricing-section">
+  <h2>Token Prices</h2>
+  <p>Creating a task uses 1 token. New accounts start with 6 tokens.</p>
+
+  <div class="price-card">
+    <span>10 TOKENS</span>
+    <h3>₦20,000</h3>
+    <p>Estimated dollar equivalent: <strong id="tokenUsdPrice">$15.04</strong></p>
+  </div>
+
+  <p class="price-note">
+    Dollar price is an estimate and may change with the exchange rate.
+    Payments are not enabled on this demo website.
+  </p>
+</section>
+
+    <div class="preview">
+      <span>YOUR DAILY PROGRESS</span>
+      <strong>Stay focused. Keep moving.</strong>
+      <div class="progress"><i style="width:68%"></i></div>
+      <small>Every small step counts.</small>
+    </div>
+  </div>
+
+  <div class="auth-side">
+    <div class="auth-box">
+      <div class="mobile-brand">F <span>Flow Tasks</span></div>
+      
+      <div class="tabs">
+        <button id="loginTab" class="tab active" onclick="switchAuth('login')">Login</button>
+        <button id="signupTab" class="tab" onclick="switchAuth('signup')">Create account</button>
+
+      </div>
+
+      <div id="loginForm">
+        <h2>Welcome back</h2>
+        <p class="muted">Log in to continue your flow.</p>
+        <label>Email address</label>
+        <input id="loginEmail" type="email" placeholder="you@example.com" autocomplete="email">
+        <label>Password</label>
+        <input id="loginPassword" type="password" placeholder="Enter your password" autocomplete="current-password">
+        <button class="primary full" onclick="login()">Login to Flow Tasks</button>
+        <p id="loginError" class="message"></p>
+        <p class="switch-text">New to Flow Tasks? <a onclick="switchAuth('signup')">Create an account</a></p>
+      </div>
+
+      <div id="signupForm" class="hidden">
+        <h2>Create your account</h2>
+        <p class="muted">Start planning your day today.</p>
+        <label>Full name</label>
+        <input id="signupName" placeholder="Your full name" autocomplete="name">
+        <label>Email address</label>
+        <input id="signupEmail" type="email" placeholder="you@example.com" autocomplete="email">
+        <label>Password</label>
+        <input id="signupPassword" type="password" placeholder="At least 6 characters" autocomplete="new-password">
+        <label>Age</label>
+        <input id="signupAge" type="number" placeholder="Your age" min="14">
+        <button class="primary full" onclick="signup()">Create Account</button>
+        <p id="signupError" class="message"></p>
+        <p class="switch-text">Already have an account? <a onclick="switchAuth('login')">Login</a></p>
+      </div>
+    </div>
+    <p class="auth-footer">Simple planning. Better focus.</p>
+  </div>
+</section>
+
+<section id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand">
+        <div class="logo">F</div><b>Flow Tasks</b></div>
+    
+<div class="sidebar-token-pricing">
+  <h3>Token Packages</h3>
+  <p>Choose a package</p>
+  <div class="auth-token-grid" id="authTokenGrid"></div>
+</div>
+    <div class="side-label">WORKSPACE</div>
+    <button class="nav active" onclick="setView('all',this)">▦ <span>All Tasks</span>
+        <b id="sideTotal">0</b>
+    </button>
+    <button class="nav" onclick="setView('today',this)">◷ <span>Today</span>
+    </button>
+    <button class="nav" onclick="setView('completed',this)">✓ <span>Completed</span>
+    </button>
+    <button id="adminNav" class="nav hidden" onclick="showAdmin()">♙ <span>Admin Panel</span></button>
+    <div class="side-bottom">
+      <div class="side-label">YOUR PROGRESS</div>
+      <div class="progress-card">
+        <div class="between"><span>Completed</span><b id="progressNumber">0%</b></div>
+        <div class="progress"><i id="progressBar"></i></div>
+        <p>Keep up the good work.</p>
+      </div>
+      <div class="profile">
+        <div class="avatar" id="avatar">F</div>
+        <div class="profile-text"><b id="profileName">User</b><small id="profileEmail"></small></div>
+        <button class="logout" onclick="logout()">↪</button>
+      </div>
+    </div>
+  </aside>
+
+  <main class="dashboard">
+    
+<header class="topbar">
+  <span>Workspace / <b id="crumb">All Tasks</b></span>
+  <button class="primary new-task" onclick="openTask()">+ New Task</button>
+</header>
+
+<div class="auth-pricing">
+  <h2>Choose Your Token Package</h2>
+  <p>Pick a package that works for you.</p>
+  <div class="auth-token-grid" id="authTokenGrid"></div>
+</div>
+
+
+    <div class="page">
+      <div class="heading">
+        <div><span class="tag">TASK MANAGER</span><h1 id="pageTitle">All Tasks</h1><p id="pageDescription">Plan your day and keep your flow moving.</p></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span>Total</span><b id="totalCount">0</b><small>Tasks created</small></div>
+        <div class="stat"><span>Active</span><b id="activeCount">0</b><small>Still in progress</small></div>
+        <div class="stat"><span>Done</span><b id="doneCount">0</b><small>Tasks completed</small></div>
+        <div class="stat"><span>Tokens</span><b id="tokenCount">6</b><small>Available to use</small></div>
+      </div>
+
+      <div class="tools">
+        <input id="search" placeholder="⌕  Search tasks..." oninput="renderTasks()">
+        <select id="sort" onchange="renderTasks()">
+          <option value="new">Newest first</option>
+          <option value="old">Oldest first</option>
+          <option value="priority">Priority</option>
+        </select>
+      </div>
+
+      <div id="taskList" class="task-list"></div>
+      <div id="emptyState" class="empty hidden"><div>▦</div><h3>No tasks here yet</h3><p>Add a task and start making progress.</p><button class="primary" onclick="openTask()">+ Create your first task</button></div>
+    </div>
+  </main>
+</section>
+
+<div id="taskModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="between"><h2>New Task</h2><button class="close" onclick="closeTask()">✕</button></div>
+    <p class="muted">Add the details of your next task.</p>
+    <label>Task title</label>
+    <input id="newTitle" placeholder="e.g. Finish project research">
+    <label>Description</label>
+    <textarea id="newDescription" placeholder="What do you need to do?"></textarea>
+    <label>Priority</label>
+    <select id="newPriority"><option value="Low">Low</option><option value="Medium" selected>Medium</option><option value="High">High</option></select>
+    <label>Reminder date and time</label>
+    <input id="newTime" type="datetime-local">
+    <p id="modalError" class="message"></p>
+    <button class="primary full" onclick="createTask()">Save Task</button>
+  </div>
+</div>
+
+<div id="adminModal" class="modal hidden">
+  <div class="modal-box wide">
+    <div class="between">
+        <h2>Admin Dashboard</h2>
+        <button class="close" onclick="closeAdmin()">✕</button>
+    </div>
+
+    
+<div class="admin-cards">
+  <div class="admin-card">
+    <h4>Manage Users</h4>
+    <p>Review registered accounts, roles, and token balances.</p>
+  </div>
+
+  <div class="admin-card">
+    <h4>Review Tasks</h4>
+    <p>Check task descriptions, priorities, reminders, and status.</p>
+  </div>
+</div>
+
+    <p class="muted">Users and tasks saved in this browser.</p>
+    <h3>Registered Users</h3>
+    <div id="adminUsers"></div>
+    <h3>Submitted Tasks</h3>
+    <div id="adminTasks"></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flow Tasks | Workers</title>
+  <link rel="stylesheet" href="workers.css">
+  <script src="workers.js" defer></script>
+</head>
+<body>
+  <main class="page">
+    <header class="top">
+      <div class="brand">FLOW <span>TASKS · TEAM</span></div>
+      <div class="top-actions">
+        <a class="btn" href="./index.html">Main Dashboard</a>
+        <button id="logoutBtn" class="btn hidden"
+          onclick="logout()">Log out</button>
+      </div>
+    </header>
+
+    <section id="auth">
+      <div class="hero">
+        <div class="eyebrow">Team workspace</div>
+        <h1>Lead the work.<br>Move as one team.</h1>
+        <p>Create a leader account or join a team as a partner
+          or worker. Leaders can create tasks and assign them
+          to workers using a team code.</p>
+      </div>
+
+      <div class="grid">
+        <section class="panel" id="registerPanel">
+          <h2>Create team account</h2>
+          <p class="sub">Choose a role to get started.</p>
+
+          <div class="field">
+            <label for="name">Full name</label>
+            <input id="name" placeholder="Your name">
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" type="email" placeholder="you@example.com">
+          </div>
+
+          <div class="row">
+            <div class="field">
+              <label for="password">Password (6+ characters)</label>
+              <input id="password" type="password"
+                placeholder="Create password">
+            </div>
+
+            <div class="field">
+              <label for="role">Register as</label>
+              <select id="role" onchange="roleFields()">
+                <option value="worker">Normal user / Partner / Worker</option>
+                <option value="leader">Leader / Administrator</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field" id="codeField">
+            <label for="teamCode">Leader's team code</label>
+            <input id="teamCode" placeholder="Enter your leader's code">
+          </div>
+
+          <div class="note" id="roleNote">
+            <b>Worker:</b> enter your leader's team code to join the team.
+          </div>
+
+          <div class="message" id="registerMsg"></div>
+
+          <button class="btn primary full" onclick="register()">
+            Create account
+          </button>
+
+          <p class="switch">
+            Already registered?
+            <button class="link" onclick="showLogin()">Log in</button>
+          </p>
+        </section>
+
+        <section class="panel hidden" id="loginPanel">
+          <h2>Welcome back</h2>
+          <p class="sub">Log in to open your team dashboard.</p>
+
+          <div class="field">
+            <label for="loginEmail">Email</label>
+            <input id="loginEmail" type="email" placeholder="you@example.com">
+          </div>
+
+          <div class="field">
+            <label for="loginPassword">Password</label>
+            <input id="loginPassword" type="password"
+              placeholder="Your password">
+          </div>
+
+          <div class="message" id="loginMsg"></div>
+
+          <button class="btn primary full" onclick="login()">
+            Log in
+          </button>
+
+          <p class="switch">
+            Need an account?
+            <button class="link" onclick="showRegister()">Register</button>
+          </p>
+        </section>
+
+        <section class="panel">
+          <h2>How it works</h2>
+          <div class="note"><b>1. Leader:</b> register and receive a team code.</div>
+          <div class="note"><b>2. Workers:</b> register using that code.</div>
+          <div class="note"><b>3. Assign tasks:</b> leaders choose which worker does each task.</div>
+          <div class="note"><b>4. Track progress:</b> workers mark their tasks completed.</div>
+          <p class="foot">
+            This demonstration stores data in the current browser.
+            It does not sync across devices.
+          </p>
+        </section>
+      </div>
+    </section>
+
+    <section id="dashboard" class="hidden">
+      <div class="dashhead">
+        <div>
+          <div class="eyebrow">Flow Tasks team space</div>
+          <h1 id="dashTitle">Team dashboard</h1>
+          <p class="muted" id="dashSub"></p>
+          <span class="badge" id="roleBadge"></span>
+        </div>
+
+        <section class="panel">
+          <p class="muted">Your team code</p>
+          <h2 id="codeDisplay">—</h2>
+          <button class="btn small" onclick="copyCode()">Copy code</button>
+        </section>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <p>Team members</p>
+          <strong id="membersCount">0</strong>
+        </div>
+        <div class="stat">
+          <p>Total tasks</p>
+          <strong id="tasksCount">0</strong>
+        </div>
+        <div class="stat">
+          <p>Pending tasks</p>
+          <strong id="pendingCount">0</strong>
+        </div>
+        <div class="stat">
+          <p>Completed tasks</p>
+          <strong id="doneCount">0</strong>
+        </div>
+      </div>
+
+      <div class="columns">
+        <section class="panel">
+          <h2 id="taskHeading">Tasks</h2>
+          <div id="tasksList" class="list"></div>
+        </section>
+
+        <div class="right-column">
+          <section class="panel hidden" id="createPanel">
+            <h2>Create and assign task</h2>
+            <p class="sub">Choose a worker and set a due date.</p>
+
+            <div class="field">
+              <label for="taskTitle">Task title</label>
+              <input id="taskTitle" placeholder="Prepare weekly report">
+            </div>
+
+            <div class="field">
+              <label for="taskDetails">Task details</label>
+              <textarea id="taskDetails"
+                placeholder="Explain what needs to be done"></textarea>
+            </div>
+
+            <div class="field">
+              <label for="assignee">Assign to worker</label>
+              <select id="assignee">
+                <option value="">Select a worker</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="due">Due date and time</label>
+              <input id="due" type="datetime-local">
+            </div>
+
+            <div class="message" id="taskMsg"></div>
+
+            <button class="btn gold full" onclick="createTask()">
+              Create task
+            </button>
+          </section>
+
+          <section class="panel">
+            <h2 id="peopleHeading">Team members</h2>
+            <div id="peopleList" class="list"></div>
+          </section>
+        </div>
+      </div>
+
+      <p class="foot">
+        Team data is stored separately from the original Flow Tasks dashboard.
+      </p>
+    </section>
+  </main>
+</body>
+</html>

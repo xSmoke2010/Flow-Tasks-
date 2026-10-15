@@ -21,6 +21,13 @@ function switchAuth(type) {
   document.getElementById("loginTab").classList.toggle("active", type === "login");
   document.getElementById("signupTab").classList.toggle("active", type === "signup");
 }
+ 
+function signupRoleFields() {
+  const type = document.getElementById("signupRole").value;
+
+  document.getElementById("signupTeamCodeField")
+    .classList.toggle("hidden", type === "leader");
+}
 
 function signup() {
   let name = document.getElementById("signupName").value.trim();
@@ -28,6 +35,8 @@ function signup() {
   let password = document.getElementById("signupPassword").value;
   let ageText = document.getElementById("signupAge").value;
   let age = Number(ageText);
+  let accountType = document.getElementById("signupRole").value;
+  let enteredCode = document.getElementById("signupTeamCode").value.trim().toUpperCase();
   let error = document.getElementById("signupError");
 
   error.style.color = "#ff777d";
@@ -38,8 +47,7 @@ function signup() {
     return;
   }
 
-  
-if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     error.textContent = "Enter a valid email address.";
     return;
   }
@@ -59,22 +67,80 @@ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return;
   }
 
+  let teamPeople = JSON.parse(localStorage.getItem("ft_team_users") || "[]");
+
+  if (teamPeople.some(p => p.email === email)) {
+    error.textContent = "This email is already registered.";
+    return;
+  }
+
+  let leader = null;
+  let teamCode = "";
+
+  if (accountType === "leader") {
+    teamCode = "FT-" + Math.random().toString(36).slice(2, 8).toUpperCase();
+  } else {
+    if (!enteredCode) {
+      error.textContent = "Enter your leader's team code.";
+      return;
+    }
+
+    leader = teamPeople.find(
+      p => p.role === "leader" && p.teamCode === enteredCode
+    );
+
+    if (!leader) {
+      error.textContent = "Invalid team code. Please check with your leader.";
+      return;
+    }
+
+    teamCode = leader.teamCode;
+  }
+
+  let id = "ft" + Date.now() + Math.random().toString(36).slice(2, 7);
+
   users.push({
-    id: Date.now() + Math.random(),
+    id,
     name,
     email,
     password,
     age,
     role: "user",
+    accountType,
+    teamCode,
     tokens: 6
   });
 
   save();
-  error.style.color = "#65d6a1";
-  error.textContent = "Registration complete. You can now log in.";
+
+  teamPeople.push({
+    id,
+    name,
+    email,
+    password,
+    role: accountType === "leader" ? "leader" : "worker",
+    leaderId: leader ? leader.id : null,
+    teamCode
+  });
+
+  localStorage.setItem("ft_team_users", JSON.stringify(teamPeople));
+
   document.getElementById("signupPassword").value = "";
+  document.getElementById("signupTeamCode").value = "";
+
+  error.style.color = "#65d6a1";
+  error.textContent = "Registration complete.";
+
   switchAuth("login");
+
+  if (accountType === "leader") {
+    alert("Account created! Your team code is: " + teamCode +
+      "\nSave it and share it with your workers.");
+  } else {
+    alert("Account created! You can now log in.");
+  }
 }
+
 
 function login() {
   let email = document.getElementById("loginEmail").value.trim().toLowerCase();
@@ -251,15 +317,92 @@ function deleteTask(id) {
 function showAdmin() {
   if (!currentUser || currentUser.role !== "admin") return;
 
-  document.getElementById("adminUsers").innerHTML = users.map(u => `
-    <div class="admin-row"><b>${safe(u.name)}</b><p>${safe(u.email)} · ${safe(u.role)} · ${u.tokens} tokens</p></div>
-  `).join("") || "No users yet.";
+  document.getElementById("adminUserCount").textContent = users.length;
+  document.getElementById("adminRoleCount").textContent = users.filter(u => u.role === "admin").length;
+  document.getElementById("adminTokenCount").textContent = users.reduce((total, u) => total + Number(u.tokens || 0), 0);
+  document.getElementById("adminTaskCount").textContent = tasks.length;
+  document.getElementById("adminUserMessage").textContent = "";
+  renderAdminUsers();
 
   document.getElementById("adminTasks").innerHTML = tasks.map(t => `
     <div class="admin-row"><b>${safe(t.title)}</b><p>${safe(t.userName)} · ${safe(t.status)} · ${safe(t.priority || "Medium")}</p><p>${safe(t.description)}</p><p>Reminder: ${t.time ? safe(new Date(t.time).toLocaleString()) : "None"}</p></div>
   `).join("") || "No tasks yet.";
 
   document.getElementById("adminModal").classList.remove("hidden");
+}
+
+function renderAdminUsers() {
+  if (!currentUser || currentUser.role !== "admin") return;
+
+  let search = document.getElementById("adminUserSearch").value.trim().toLowerCase();
+  let role = document.getElementById("adminRoleFilter").value;
+  let matchingUsers = users
+    .map((user, index) => ({ user, index }))
+    .filter(({ user }) => {
+      let matchesSearch = (user.name + " " + user.email).toLowerCase().includes(search);
+      return matchesSearch && (role === "all" || user.role === role);
+    });
+
+  document.getElementById("adminUsers").innerHTML = matchingUsers.map(({ user, index }) => `
+    <div class="admin-user-row">
+      <div class="admin-user-identity">
+        <div class="avatar">${safe(user.name.charAt(0).toUpperCase())}</div>
+        <div><b>${safe(user.name)}</b><small>${safe(user.email)}</small></div>
+      </div>
+      <label class="admin-field">
+        <span>Role</span>
+        <select id="adminRole-${index}" aria-label="Role for ${safe(user.name)}" ${user.id === currentUser.id ? "disabled" : ""}>
+          <option value="user" ${user.role === "user" ? "selected" : ""}>User</option>
+          <option value="admin" ${user.role === "admin" ? "selected" : ""}>Admin</option>
+        </select>
+      </label>
+      <label class="admin-field admin-token-field">
+        <span>Tokens</span>
+        <input id="adminTokens-${index}" type="number" min="0" step="1" value="${safe(user.tokens)}" aria-label="Token balance for ${safe(user.name)}">
+      </label>
+      <button class="admin-save" onclick="updateAdminUser(${index})">Save</button>
+    </div>
+  `).join("") || '<p class="admin-empty">No users match your search.</p>';
+}
+
+function updateAdminUser(index) {
+  if (!currentUser || currentUser.role !== "admin") return;
+
+  let user = users[index];
+  let roleInput = document.getElementById("adminRole-" + index);
+  let tokensInput = document.getElementById("adminTokens-" + index);
+  let message = document.getElementById("adminUserMessage");
+
+  if (!user || !roleInput || !tokensInput) return;
+
+  let tokens = Number(tokensInput.value);
+  message.style.color = "#ff777d";
+
+  if (!tokensInput.value.trim() || !Number.isSafeInteger(tokens) || tokens < 0) {
+    message.textContent = "Token balances must be a whole number of zero or more.";
+    return;
+  }
+
+  if (roleInput.value !== "admin" && roleInput.value !== "user") {
+    message.textContent = "Choose a valid user role.";
+    return;
+  }
+
+  if (user.role === "admin" && roleInput.value === "user" &&
+      users.filter(account => account.role === "admin").length <= 1) {
+    message.textContent = "At least one administrator must remain.";
+    return;
+  }
+
+  user.role = roleInput.value;
+  user.tokens = tokens;
+  save();
+  document.getElementById("adminUserCount").textContent = users.length;
+  document.getElementById("adminRoleCount").textContent = users.filter(account => account.role === "admin").length;
+  document.getElementById("adminTokenCount").textContent = users.reduce((total, account) => total + Number(account.tokens || 0), 0);
+  message.style.color = "#65d6a1";
+  message.textContent = "User account updated.";
+  renderAdminUsers();
 }
 
 function closeAdmin() {
